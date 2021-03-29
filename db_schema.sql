@@ -29,14 +29,16 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `finanzas`.`cuentas`
+-- Table `finanzas`.`cuenta`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `finanzas`.`cuentas` (
-  `idcuentas` INT NOT NULL AUTO_INCREMENT,
-  `numero_cuenta` VARCHAR(45) NOT NULL,
+CREATE TABLE IF NOT EXISTS `finanzas`.`cuenta` (
+  `idcuenta` INT NOT NULL AUTO_INCREMENT,
+  `numero` VARCHAR(45) NULL,
   `saldo` BIGINT NOT NULL,
   `usuario_idusuario` INT NOT NULL,
-  PRIMARY KEY (`idcuentas`),
+  `nombre` VARCHAR(250) NOT NULL,
+  `descripcion` VARCHAR(500) NULL,
+  PRIMARY KEY (`idcuenta`),
   INDEX `fk_cuentas_usuario1_idx` (`usuario_idusuario` ASC) VISIBLE,
   CONSTRAINT `fk_cuentas_usuario1`
     FOREIGN KEY (`usuario_idusuario`)
@@ -58,21 +60,22 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `finanzas`.`gastos`
+-- Table `finanzas`.`movimiento`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `finanzas`.`gastos` (
-  `idgastos` INT NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `finanzas`.`movimiento` (
+  `idmovimiento` INT NOT NULL AUTO_INCREMENT,
   `valor` BIGINT NOT NULL,
-  `fecha` TIMESTAMP(2) NOT NULL,
+  `fecha` TIMESTAMP(2) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `descripcion` VARCHAR(300) NULL,
   `cuentas_idcuentas` INT NOT NULL,
   `categoria_idcategoria` INT NOT NULL,
-  PRIMARY KEY (`idgastos`),
+  `tipo` ENUM("ingreso", "egreso") NULL,
+  PRIMARY KEY (`idmovimiento`),
   INDEX `fk_gastos_cuentas_idx` (`cuentas_idcuentas` ASC) VISIBLE,
   INDEX `fk_gastos_categoria1_idx` (`categoria_idcategoria` ASC) VISIBLE,
   CONSTRAINT `fk_gastos_cuentas`
     FOREIGN KEY (`cuentas_idcuentas`)
-    REFERENCES `finanzas`.`cuentas` (`idcuentas`)
+    REFERENCES `finanzas`.`cuenta` (`idcuenta`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_gastos_categoria1`
@@ -80,7 +83,8 @@ CREATE TABLE IF NOT EXISTS `finanzas`.`gastos` (
     REFERENCES `finanzas`.`categoria` (`idcategoria`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+ENGINE = InnoDB
+INSERT_METHOD = LAST;
 
 
 -- -----------------------------------------------------
@@ -102,17 +106,39 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `finanzas`.`deuda`
+-- Table `finanzas`.`deuda_prestamo`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `finanzas`.`deuda` (
+CREATE TABLE IF NOT EXISTS `finanzas`.`deuda_prestamo` (
   `iddeuda` INT NOT NULL,
   `valor` BIGINT NOT NULL,
-  `interes` INT NULL,
-  `nombre_prestador` VARCHAR(500) NOT NULL,
+  `interes` INT NOT NULL,
+  `nombre_prestador` VARCHAR(500) NULL,
   `usuario_idusuario` INT NOT NULL,
+  `tipo` ENUM("deuda", "prestamo") NOT NULL,
   PRIMARY KEY (`iddeuda`),
   INDEX `fk_deuda_usuario1_idx` (`usuario_idusuario` ASC) VISIBLE,
   CONSTRAINT `fk_deuda_usuario1`
+    FOREIGN KEY (`usuario_idusuario`)
+    REFERENCES `finanzas`.`usuario` (`idusuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `finanzas`.`suscripcion`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `finanzas`.`suscripcion` (
+  `idsuscripcion` INT NOT NULL,
+  `nombre` VARCHAR(250) NOT NULL,
+  `descripcion` VARCHAR(1000) NULL,
+  `valor` BIGINT NOT NULL,
+  `fecha_pago` DATE NOT NULL,
+  `usuario_idusuario` INT NOT NULL,
+  PRIMARY KEY (`idsuscripcion`),
+  UNIQUE INDEX `nombre_UNIQUE` (`nombre` ASC) VISIBLE,
+  INDEX `fk_suscripcion_usuario1_idx` (`usuario_idusuario` ASC) VISIBLE,
+  CONSTRAINT `fk_suscripcion_usuario1`
     FOREIGN KEY (`usuario_idusuario`)
     REFERENCES `finanzas`.`usuario` (`idusuario`)
     ON DELETE NO ACTION
