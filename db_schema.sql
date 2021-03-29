@@ -65,7 +65,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `finanzas`.`movimiento` (
   `idmovimiento` INT NOT NULL AUTO_INCREMENT,
   `valor` BIGINT NOT NULL,
-  `fecha` TIMESTAMP(2) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `fecha` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `descripcion` VARCHAR(300) NULL,
   `cuentas_idcuentas` INT NOT NULL,
   `categoria_idcategoria` INT NOT NULL,
